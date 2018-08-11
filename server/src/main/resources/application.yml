@@ -1,0 +1,18 @@
+server:
+  port: 8070
+
+tcp:
+  port: 8081
+boss:
+  thread:
+    count: 200
+worker:
+  thread:
+    count: 200
+so:
+  keepalive: true
+  backlog: 100
+
+spring:
+  profiles:
+    active: dev

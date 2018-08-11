@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.ice.house</groupId>
+  <artifactId>house-netty</artifactId>
+  <packaging>pom</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <modules>
+    <module>component</module>
+    <module>server</module>
+    <module>netty-client</module>
+  </modules>
+
+  <properties>
+    <!--Maven编译/打包相关配置-->
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <jdk.version>1.8</jdk.version>
+    <argLine>-Dfile.encoding=UTF-8</argLine>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    <maven.assembly.plugin.version>3.0.0</maven.assembly.plugin.version>
+
+    <!--第三方依赖版本-->
+    <spring.boot.version>2.0.3.RELEASE</spring.boot.version>
+    <junit.version>4.12</junit.version>
+    <project.version>1.0.0-SNAPSHOT</project.version>
+    <protobuf.version>3.6.0</protobuf.version>
+    <protobuf.format.version>1.4</protobuf.format.version>
+    <slf4j.version>1.7.25</slf4j.version>
+    <netty.version>4.1.28.Final</netty.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring.boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

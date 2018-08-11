@@ -33,16 +33,28 @@ public class NettyClient {
   private ChannelFuture channelFuture;
 
   @PostConstruct
-  public void start() throws Exception {
+  public void start() throws InterruptedException {
     channelFuture = bootstrap.connect(host, tcpPort).sync();
+    logger.info("远程服务器已经连接，host:{},port:{}", host, tcpPort);
   }
 
   @PreDestroy
-  public void stop() throws Exception {
+  public void stop() throws InterruptedException {
     channelFuture.channel().closeFuture().sync();
   }
 
+  public ChannelFuture getChannelFuture() throws InterruptedException {
+    //如果管道没有被开启或者被关闭了，那么重连
+    if (channelFuture == null) {
+      this.start();
+    }
+    if (!channelFuture.channel().isActive()) {
+      this.start();
+    }
+    return channelFuture;
+  }
 
-
-
+  public void setChannelFuture(ChannelFuture channelFuture) {
+    this.channelFuture = channelFuture;
+  }
 }

@@ -11,7 +11,7 @@ worker:
     count: 200
 so:
   keepalive: true
-  backlog: 100
+  backlog: 1024
 
 spring:
   profiles:

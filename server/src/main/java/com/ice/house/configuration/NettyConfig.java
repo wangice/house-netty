@@ -37,6 +37,12 @@ public class NettyConfig {
   @Value("${so.keepalive}")
   private boolean keepAlive;
 
+  /**
+   * BACKLOG用于构造服务端套接字ServerSocket对象，标识当服务器请求处理线程全满时， 用于临时存放已完成三次握手的请求的队列的最大长度。
+   * 如果未设置或所设置的值小于1，将使用默认值50。 服务端处理客户端连接请求是顺序处理的，所以同一时间只能处理一个客户端连接，多个客户端来的时候，
+   * 服务端将不能处理的客户端连接请求放在队列中等待处理，backlog参数指定了队列的大小
+   */
+
   @Value("${so.backlog}")
   private int backlog;
 

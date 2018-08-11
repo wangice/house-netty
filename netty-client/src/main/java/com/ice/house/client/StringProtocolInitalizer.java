@@ -5,6 +5,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,8 @@ public class StringProtocolInitalizer extends ChannelInitializer<SocketChannel> 
   protected void initChannel(SocketChannel ch) throws Exception {
     ChannelPipeline pipeline = ch.pipeline();
     pipeline.addLast("decoder", stringDecoder);
+    //超时handler（当服务器端与客户端在指定时间以上没有任何进行通信，则会关闭响应的通道，主要为减小服务端资源占用）
+    pipeline.addLast(new ReadTimeoutHandler(30));
     pipeline.addLast("handler", serverHandler);
     pipeline.addLast("encoder", stringEncoder);
   }

@@ -1,6 +1,6 @@
 package com.ice.house.task.schedule;
 
-import com.ice.brother.house.Misc;
+import com.ice.house.Misc;
 import com.ice.house.task.actor.Actor;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;

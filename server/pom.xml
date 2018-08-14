@@ -20,6 +20,12 @@
     </dependency>
 
     <dependency>
+      <groupId>com.ice.house</groupId>
+      <artifactId>timer-task</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-actuator</artifactId>
       <version>${spring.boot.version}</version>

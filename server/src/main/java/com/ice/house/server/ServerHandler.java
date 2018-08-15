@@ -1,5 +1,6 @@
 package com.ice.house.server;
 
+import com.ice.house.msg.ModbusMsg;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -16,12 +17,12 @@ import org.springframework.stereotype.Component;
 @Sharable
 @Component
 @Qualifier("serverHandler")
-public class ServerHandler extends SimpleChannelInboundHandler<String> {
+public class ServerHandler extends SimpleChannelInboundHandler<ModbusMsg> {
 
   private static final Logger log = LoggerFactory.getLogger(ServerHandler.class);
 
   @Override
-  public void channelRead0(ChannelHandlerContext ctx, String msg)
+  public void channelRead0(ChannelHandlerContext ctx, ModbusMsg msg)
       throws Exception {
     log.info("client msg:" + msg);
     String clientIdToLong = ctx.channel().id().asLongText();

@@ -32,12 +32,6 @@ public class NettyConfig {
   @Value("${host}")
   private String port;
 
-  @Value("${so.keepalive}")
-  private boolean keepAlive;
-
-  @Value("${so.backlog}")
-  private int backlog;
-
 
   @Autowired
   @Qualifier("springProtocolInitializer")
@@ -61,8 +55,7 @@ public class NettyConfig {
   @Bean(name = "tcpChannelOptions")
   public Map<ChannelOption<?>, Object> tcpChannelOptions() {
     Map<ChannelOption<?>, Object> options = new HashMap<ChannelOption<?>, Object>();
-    options.put(ChannelOption.SO_KEEPALIVE, keepAlive);
-    options.put(ChannelOption.SO_BACKLOG, backlog);
+    options.put(ChannelOption.TCP_NODELAY, true);
     return options;
   }
 

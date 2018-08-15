@@ -14,7 +14,7 @@
   <dependencies>
     <dependency>
       <groupId>com.ice.house</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>common-misc</artifactId>
       <version>${project.version}</version>
     </dependency>
 

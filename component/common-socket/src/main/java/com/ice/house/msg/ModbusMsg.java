@@ -1,4 +1,6 @@
-package com.ice.house;
+package com.ice.house.msg;
+
+import com.ice.house.Net;
 
 /**
  * @author:ice
@@ -16,13 +18,18 @@ public class ModbusMsg {
         return by;
     }
 
+    public ModbusMsg(ModbusHeader header, byte[] data) {
+        this.header = header;
+        this.data = data;
+    }
+
     /**
      * 编码一个MODBUS-TCP公共头部.
      */
     public void encodeModeBusHeader(short tid, byte version, byte fcode, byte[] pdu) {
         System.arraycopy(Net.short2byte(tid), 0, pdu, 0, 2);
         pdu[2] = version;
-        System.arraycopy(Net.int2byte(pdu.length - 4), 0, pdu, 3, 4);
+        System.arraycopy(Net.int2byte(pdu.length - ModbusHeader.MODBUS_HEADER_LEN), 0, pdu, 3, 4);
         pdu[7] = fcode;
     }
 

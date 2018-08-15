@@ -1,4 +1,6 @@
-package com.ice.house;
+package com.ice.house.msg;
+
+import com.ice.house.Misc;
 
 public class ModbusHeader {
     /**

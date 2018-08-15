@@ -1,5 +1,7 @@
 package com.ice.house.server;
 
+import com.ice.house.codec.ModBusMsgDecode;
+import com.ice.house.codec.ModBusMsgEncode;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -16,6 +18,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Qualifier("springProtocolInitializer")
 public class StringProtocolInitalizer extends ChannelInitializer<SocketChannel> {
+  private static final int MAX_FRAME_LENGTH = 1024 * 1024;  //最大长度
+  private static final int LENGTH_FIELD_LENGTH = 4;  //长度字段所占的字节数
+  private static final int LENGTH_FIELD_OFFSET = 3;  //长度偏移
 
   @Autowired
   StringDecoder stringDecoder;
@@ -29,9 +34,9 @@ public class StringProtocolInitalizer extends ChannelInitializer<SocketChannel> 
   @Override
   protected void initChannel(SocketChannel ch) throws Exception {
     ChannelPipeline pipeline = ch.pipeline();
-    pipeline.addLast("decoder", stringDecoder);
+    pipeline.addLast("decoder", new ModBusMsgDecode(MAX_FRAME_LENGTH,LENGTH_FIELD_OFFSET,LENGTH_FIELD_LENGTH));
     pipeline.addLast("handler", serverHandler);
-    pipeline.addLast("encoder", stringEncoder);
+    pipeline.addLast("encoder", new ModBusMsgEncode());
   }
 
   public StringDecoder getStringDecoder() {

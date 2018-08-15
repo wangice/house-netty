@@ -2,7 +2,9 @@ package com.ice.house.task.schedule;
 
 import com.ice.house.Misc;
 import com.ice.house.task.actor.Actor;
+
 import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -18,40 +20,39 @@ import org.springframework.stereotype.Component;
 @AutoConfigureAfter({TscTimerMgr.class})
 public class Tworker extends Actor {
 
-  @Value("${tworker.quartz}")
-  private long quartz;
+    private long quartz = 1000;
 
-  @Autowired
-  private TscTimerMgr tscTimerMgr;
+    @Autowired
+    private TscTimerMgr tscTimerMgr;
 
-  /**
-   * 系统中经常用到System.currentTimeMillis(),减少消耗.
-   */
-  public long clock = System.currentTimeMillis();
+    /**
+     * 系统中经常用到System.currentTimeMillis(),减少消耗.
+     */
+    public long clock = System.currentTimeMillis();
 
-  public Tworker() {
-    super(ActorType.ITC);
-  }
-
-  /**
-   * 初始化并
-   */
-  @PostConstruct
-  public void run() {
-    tscTimerMgr.init();//初始化定时器.
-    new Thread(() -> this.hold()).start();
-  }
-
-  /**
-   * 定时器震荡.
-   */
-  public void hold() {
-
-    while (true) {
-      Misc.sleep(quartz);
-      this.clock = System.currentTimeMillis();
-      this.future(v -> tscTimerMgr.quartz(clock));
+    public Tworker() {
+        super(ActorType.ITC);
     }
-  }
+
+    /**
+     * 初始化并
+     */
+    @PostConstruct
+    public void run() {
+        tscTimerMgr.init();//初始化定时器.
+        new Thread(() -> this.hold()).start();
+    }
+
+    /**
+     * 定时器震荡.
+     */
+    public void hold() {
+
+        while (true) {
+            Misc.sleep(quartz);
+            this.clock = System.currentTimeMillis();
+            this.future(v -> tscTimerMgr.quartz(clock));
+        }
+    }
 
 }

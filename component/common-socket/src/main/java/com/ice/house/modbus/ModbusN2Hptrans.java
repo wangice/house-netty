@@ -1,6 +1,6 @@
 package com.ice.house.modbus;
 
-import com.ice.house.ModbusMsg;
+import com.ice.house.msg.ModbusMsg;
 import java.util.ArrayList;
 
 /**

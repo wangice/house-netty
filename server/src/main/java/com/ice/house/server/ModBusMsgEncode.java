@@ -14,15 +14,14 @@ import java.util.List;
  * @author:ice
  * @Date: 2018/8/11 15:07
  */
-public class ModBusMsgEncode extends ByteToMessageDecoder {
+public class ModBusMsgEncode extends MessageToByteEncoder<ModbusMsg> {
 
     private static final Logger logger = LoggerFactory.getLogger(ModBusMsgEncode.class);
 
     private int ofst = 0;
 
     @Override
-    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-
-
+    protected void encode(ChannelHandlerContext ctx, ModbusMsg modbusMsg, ByteBuf byteBuf) throws Exception {
+        byteBuf.writeBytes(modbusMsg.bytes());
     }
 }

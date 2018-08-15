@@ -12,7 +12,7 @@ public abstract class ActorNet extends Actor {
 
   public long gts = 0L;//连接建立时间.
 
-  private ChannelHandlerContext ctx;//网络连接标识
+  public ChannelHandlerContext ctx;//网络连接标识
 
   public ActorNet(ActorType type, ChannelHandlerContext ctx) {
     super(type);

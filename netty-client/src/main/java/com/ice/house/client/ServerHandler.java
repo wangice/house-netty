@@ -43,7 +43,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<ModbusMsg> {
         ModbusHeader header = new ModbusHeader();
         header.tid = 1;
         header.version = (byte) 1;
-        header.fcode = (byte) 1;
+        header.fcode = (byte) 13;
         header.len = msg.getBytes().length;
         ModbusMsg modbusMsg = new ModbusMsg(header, msg.getBytes());
         ctx.channel().writeAndFlush(modbusMsg);

@@ -2,7 +2,9 @@ package com.ice.house.modbus;
 
 import com.ice.house.Misc;
 import com.ice.house.core.ActorNet;
+import com.ice.house.msg.ModbusMsg;
 import io.netty.channel.ChannelHandlerContext;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -11,20 +13,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class ModbusNet extends ActorNet {
 
-  /**
-   * 事务ID发生器.
-   */
-  public AtomicInteger tid = new AtomicInteger(Misc.randInt());
+    /**
+     * 事务ID发生器.
+     */
+    public AtomicInteger tid = new AtomicInteger(Misc.randInt());
 
 
-  public ModbusNet(ActorType type, ChannelHandlerContext ctx) {
-    super(type, ctx);
-  }
+    public ModbusNet(ActorType type, ChannelHandlerContext ctx) {
+        super(type, ctx);
+    }
 
-  /**
-   * 发送信息
-   */
-  public void send() {
-
-  }
+    /**
+     * 消息事件.
+     */
+    public abstract boolean evnMsg(ModbusMsg modbus);
 }

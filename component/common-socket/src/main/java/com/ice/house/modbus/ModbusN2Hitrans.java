@@ -1,5 +1,7 @@
 package com.ice.house.modbus;
 
+import com.ice.house.msg.ModbusMsg;
+
 import java.util.function.Consumer;
 
 /**
@@ -13,6 +15,8 @@ public class ModbusN2Hitrans {
   public ModbusN2H n2h; //事物发起者
 
   public short tid;//事务ID
+
+  public ModbusMsg modbusMsg;//事务上的消息
 
   public int retry;//如果超时，重传次数
 

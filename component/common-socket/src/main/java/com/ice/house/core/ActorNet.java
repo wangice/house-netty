@@ -1,7 +1,10 @@
 package com.ice.house.core;
 
+import com.ice.house.msg.ModbusMsg;
 import com.ice.house.task.actor.Actor;
 import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author:ice
@@ -9,26 +12,33 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public abstract class ActorNet extends Actor {
 
-  /**
-   * 连接是否已建立.
-   */
-  public boolean est = false;
+    private static final Logger logger = LoggerFactory.getLogger(ActorNet.class);
 
-  public long gts = 0L;//连接建立时间.
-  /**
-   * 最后收到消息(指的是一个完整的消息, 而不是一些字节. 原因在于协议片段报文会一直缓存在buffer中, 不被上层处理)的时间戳(毫秒).
-   */
-  public long lts = 0L;
+    /**
+     * 连接是否已建立.
+     */
+    public boolean est = false;
 
-  public ChannelHandlerContext ctx;//网络连接标识
+    public long gts = 0L;//连接建立时间.
+    /**
+     * 最后收到消息(指的是一个完整的消息, 而不是一些字节. 原因在于协议片段报文会一直缓存在buffer中, 不被上层处理)的时间戳(毫秒).
+     */
+    public long lts = 0L;
 
-  public ActorNet(ActorType type, ChannelHandlerContext ctx) {
-    super(type);
-    this.ctx = ctx;
-  }
+    public ChannelHandlerContext ctx;//网络连接标识
 
-  /**
-   * 失去连接
-   */
-  public abstract void evnDis();
+    public ActorNet(ActorType type, ChannelHandlerContext ctx) {
+        super(type);
+        this.ctx = ctx;
+    }
+
+    public void send(ModbusMsg modbusMsg) {
+        logger.debug("消息发送");
+        ctx.writeAndFlush(modbusMsg);
+    }
+
+    /**
+     * 失去连接
+     */
+    public abstract void evnDis();
 }

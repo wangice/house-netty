@@ -41,4 +41,8 @@ public abstract class ActorNet extends Actor {
      * 失去连接
      */
     public abstract void evnDis();
+
+    public void close() {
+        this.evnDis();
+    }
 }

@@ -3,12 +3,12 @@ package com.ice.house.server;
 import com.ice.house.Misc;
 import com.ice.house.core.ActorNet;
 import com.ice.house.core.ModbusWorker;
+import com.ice.house.core.Tsc;
 import com.ice.house.modbus.ModbusN2H;
 import com.ice.house.msg.ModbusMsg;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.socket.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,33 +27,49 @@ public class ServerHandler extends SimpleChannelInboundHandler<ModbusMsg> {
     private static final Logger log = LoggerFactory.getLogger(ServerHandler.class);
 
     @Autowired
-    private ModbusWorker modbusWorker;
+    private Tsc tsc;
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, ModbusMsg msg)
             throws Exception {
-        ModbusN2H modbusN2H = (ModbusN2H) modbusWorker.ans.get(ctx.channel());
-        modbusN2H.evnMsg(msg);//读取某个消息
+        ModbusWorker worker = tsc.getWorker(ctx.channel().id().asLongText());
+        worker.push(v -> {
+            ModbusN2H modbusN2H = (ModbusN2H) worker.ans.get(ctx.channel());
+            modbusN2H.evnMsg(msg);//读取某个消息
+        });
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info("RamoteAddress : " + ctx.channel().remoteAddress() + " active !");
-        ActorNet an = new ModbusN2H(ctx);
-        modbusWorker.addActorNet(an);
+        ModbusWorker worker = tsc.getWorker(ctx.channel().id().asLongText());
+        worker.push(c -> {
+            ActorNet an = new ModbusN2H(ctx, worker);
+            tsc.getWorker(ctx.channel().id().asLongText()).addActorNet(an);
+            tsc.tscLog.n2hEstab(an);
+        });
     }
 
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         log.info("抛出异常{}", Misc.trace(cause));
-        ModbusN2H modbusN2H = (ModbusN2H) modbusWorker.ans.get(ctx);
-        modbusWorker.removeActorNet(modbusN2H);
+        log.info("id:{}", ctx.channel().id().asLongText());
+        ModbusWorker modbusWorker = tsc.getWorker(ctx.channel().id().asLongText());
+        modbusWorker.push(c -> {
+            ModbusN2H modbusN2H = (ModbusN2H) modbusWorker.ans.get(ctx);
+            modbusWorker.removeActorNet(modbusN2H);
+        });
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("\nChannel is disconnected");
+        log.info("Channel is disconnected");
+        ModbusWorker modbusWorker = tsc.getWorker(ctx.channel().id().asLongText());
+        modbusWorker.push(c -> {
+            ModbusN2H modbusN2H = (ModbusN2H) modbusWorker.ans.get(ctx);
+            modbusWorker.removeActorNet(modbusN2H);
+        });
         super.channelInactive(ctx);
     }
 

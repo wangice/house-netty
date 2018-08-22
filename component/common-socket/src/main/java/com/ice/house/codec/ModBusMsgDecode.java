@@ -1,6 +1,7 @@
 package com.ice.house.codec;
 
-import com.ice.house.Misc;
+import com.ice.house.modbus.Modbus;
+import com.ice.house.modbusmsg.HeartBeatRsp;
 import com.ice.house.msg.ModbusHeader;
 import com.ice.house.msg.ModbusMsg;
 import io.netty.buffer.ByteBuf;
@@ -43,6 +44,18 @@ public class ModBusMsgDecode extends LengthFieldBasedFrameDecoder {
         //读取body
         byte[] bytes = new byte[in.readableBytes()];
         in.readBytes(bytes);
-        return new ModbusMsg(header, bytes);
+        return this.decode(header.fcode, header, bytes);
+    }
+
+    /**
+     * 将返回的值转化为不同类型.
+     */
+    private ModbusMsg decode(byte fcode, ModbusHeader header, byte[] bytes) {
+        switch (fcode) {
+            case Modbus.FC_HEARTBEAT://心跳
+                return new HeartBeatRsp();
+            default:
+                return null;
+        }
     }
 }

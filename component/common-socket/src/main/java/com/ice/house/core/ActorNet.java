@@ -14,6 +14,8 @@ public abstract class ActorNet extends Actor {
 
     private static final Logger logger = LoggerFactory.getLogger(ActorNet.class);
 
+    protected ModbusWorker worker = null;//所在的工作线程
+
     /**
      * 连接是否已建立.
      */
@@ -42,7 +44,22 @@ public abstract class ActorNet extends Actor {
      */
     public abstract void evnDis();
 
+    /**
+     * 强制关闭连接，回调evnDis
+     */
     public void close() {
+        this.closeSlient();
         this.evnDis();
     }
+
+    /**
+     * 静默关闭，不触发evnDis()
+     */
+    public void closeSlient() {
+        if (!this.est) {
+            return;
+        }
+        this.worker.removeActorNet(this);
+    }
+
 }

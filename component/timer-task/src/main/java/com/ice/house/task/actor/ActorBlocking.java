@@ -34,6 +34,7 @@ public class ActorBlocking extends Actor {
 
   public ActorBlocking() {
     super(ActorType.BLOCKING);
+    this.start();
   }
 
   /**

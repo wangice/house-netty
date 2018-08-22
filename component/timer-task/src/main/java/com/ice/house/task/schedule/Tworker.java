@@ -16,13 +16,11 @@ import org.springframework.stereotype.Component;
  * @author:ice
  * @Date: 2018/8/7 17:11
  */
-@Component
-@AutoConfigureAfter({TscTimerMgr.class})
+
 public class Tworker extends Actor {
 
     private long quartz = 1000;
 
-    @Autowired
     private TscTimerMgr tscTimerMgr;
 
     /**

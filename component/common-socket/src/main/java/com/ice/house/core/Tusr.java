@@ -10,9 +10,12 @@ public abstract class Tusr<T1 extends ActorNet, T2> extends Actor {
 
     public T1 n2h = null;
 
+    public String deviceNo;
+
     public Tusr(String device, T1 n2h) {
         super(ActorType.ITC);
         this.n2h = n2h;
+        this.deviceNo = device;
     }
 
     /**
@@ -30,4 +33,9 @@ public abstract class Tusr<T1 extends ActorNet, T2> extends Actor {
             this.n2h.close();
         }
     }
+
+    /**
+     * 与Tusr相关联的N2H连接失去.
+     */
+    public abstract void evnDis();
 }

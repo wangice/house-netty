@@ -15,7 +15,7 @@ public class DeviceLog implements TscLog {
     @Override
     public void n2hEstab(ActorNet an) {
         ModbusN2H n2h = (ModbusN2H) an;
-        Device device = new Device(null, an);
-        device.evnEst();
+        n2h.tusr = new Device(null, n2h);
+        ((Device) n2h.tusr).evnEst();
     }
 }

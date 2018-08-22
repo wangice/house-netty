@@ -40,13 +40,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<ModbusMsg> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         String msg = "客户端发消息";
-        ModbusHeader header = new ModbusHeader();
-        header.tid = 1;
-        header.version = (byte) 1;
-        header.fcode = (byte) 13;
-        header.len = msg.getBytes().length;
-        ModbusMsg modbusMsg = new ModbusMsg(header, msg.getBytes());
-        ctx.channel().writeAndFlush(modbusMsg);
+
     }
 
 

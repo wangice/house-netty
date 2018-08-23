@@ -31,7 +31,7 @@ public class Device extends Tusr<ModbusN2H, ModbusMsg> {
         logger.info("发送心跳");
         HeartBeatReq heartBeatReq = Modbus.encodeHeartBeatReq((short) 0x0000 /* 在future中被替换. */, Modbus.version, (short) Modbus.cs_cfg_collector_def_heartbeat);
         this.n2h.future(heartBeatReq, rspCb -> {
-            logger.info("接受到客户端发来的信息");
+            this.n2h.worker.tscTimerMgr.addTimerOneTime(5, v -> sendHeartbeat());
         }, tmb -> {
             logger.debug("first heartbeat timeout, we will close it!");
             this.close();
@@ -41,5 +41,15 @@ public class Device extends Tusr<ModbusN2H, ModbusMsg> {
     @Override
     public void evnDis() {
         //失去连接后，通知状态改变
+    }
+
+    public void sendHeartbeat() {
+        HeartBeatReq heartBeatReq = Modbus.encodeHeartBeatReq((short) 0x0000 /* 在future中被替换. */, Modbus.version, (short) Modbus.cs_cfg_collector_def_heartbeat);
+        this.n2h.future(heartBeatReq, rspCb -> {
+            this.n2h.worker.tscTimerMgr.addTimerOneTime(5, v -> sendHeartbeat());//添加一个定时器任务再过五秒后发送心跳
+        }, tmb -> {
+            logger.debug("first heartbeat timeout, we will close it!");
+            this.close();
+        });
     }
 }

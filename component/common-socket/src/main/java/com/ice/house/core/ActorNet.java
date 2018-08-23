@@ -1,5 +1,6 @@
 package com.ice.house.core;
 
+import com.ice.house.Misc;
 import com.ice.house.msg.ModbusMsg;
 import com.ice.house.task.actor.Actor;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,7 +15,7 @@ public abstract class ActorNet extends Actor {
 
     private static final Logger logger = LoggerFactory.getLogger(ActorNet.class);
 
-    protected ModbusWorker worker = null;//所在的工作线程
+    public ModbusWorker worker = null;//所在的工作线程
 
     /**
      * 连接是否已建立.
@@ -35,8 +36,8 @@ public abstract class ActorNet extends Actor {
     }
 
     public void send(ModbusMsg modbusMsg) {
-        logger.debug("消息发送");
-        ctx.writeAndFlush(modbusMsg);
+        logger.debug("消息发送:{}", Misc.obj2json(modbusMsg));
+        ctx.channel().writeAndFlush(modbusMsg);
     }
 
     /**

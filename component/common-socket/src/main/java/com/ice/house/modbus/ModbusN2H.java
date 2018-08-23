@@ -35,6 +35,7 @@ public class ModbusN2H extends ModbusNet {
 
     public ModbusN2H(ChannelHandlerContext ctx, ModbusWorker worker) {
         super(ActorType.ITC, ctx);
+        this.est = true;
         this.gts = System.currentTimeMillis();
         this.worker = worker;
     }
@@ -77,7 +78,9 @@ public class ModbusN2H extends ModbusNet {
                 logger.debug("can not found modbusN2Hitrans for tid:{}，may be it is timeout", modbusMsg.header.tid);
                 return true;
             }
+            logger.debug("server accept client heart beat:{}", ctx.channel().id().asLongText());
             modbusN2Hitrans.lpts = System.currentTimeMillis();
+            Misc.exeConsumer(modbusN2Hitrans.rspCb, modbusN2Hitrans);
             this.trans.remove(modbusMsg.header.tid);//从缓存中移除事务
             return true;
         }
@@ -113,7 +116,7 @@ public class ModbusN2H extends ModbusNet {
     private short __future__(ModbusMsg req /* req是一个完整的MODBUS-TCP报文. 仅仅需要重置tid. */, Consumer<ModbusN2Hitrans> rspCb, Consumer<ModbusN2Hitrans> tmCb, boolean pd /* 部分递送. */, int retry/*重试次数*/) {
         short tid = this.nextTid4ModBus();
         super.future(v -> {
-            req.header.tid = this.nextTid4ModBus(); /* 重置事务id. */
+            req.header.tid = tid; /* 重置事务id. */
             ModbusN2Hitrans t = new ModbusN2Hitrans(this, tid, rspCb, tmCb, retry);
             if (this.waitSendTrans.isEmpty() && this.enableDirectSend) {/*没有等待的消息，也没有等待响应的事务.*/
                 this.enableDirectSend = false;

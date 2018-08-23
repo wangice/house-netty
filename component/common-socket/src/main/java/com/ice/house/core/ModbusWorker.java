@@ -34,6 +34,21 @@ public class ModbusWorker extends ActorBlocking {
 
 
     /**
+     * 关闭一个ActorNet连接
+     */
+    public void removeActorNet(ActorNet an) {
+        if (an == null) {
+            logger.info("连接已经关闭了");
+            return;
+        }
+        logger.info("关闭连接");
+        this.ans.remove(an.ctx);
+        an.ctx.close();//关闭连接
+        an.est = false;
+    }
+
+
+    /**
      * 添加一个ActorNet连接
      */
     public boolean addActorNet(ActorNet an) {
@@ -58,21 +73,6 @@ public class ModbusWorker extends ActorBlocking {
         this.ans.put(an.ctx, an);
         return true;
     }
-
-    /**
-     * 关闭一个ActorNet连接
-     */
-    public void removeActorNet(ActorNet an) {
-        if (an == null) {
-            logger.info("连接已经关闭了");
-            return;
-        }
-        logger.info("关闭连接");
-        this.ans.remove(an.ctx);
-        an.ctx.close();//关闭连接
-        an.est = false;
-    }
-
 
     /** ---------------------------------------------------------------- */
     /**                                                                  */
@@ -149,7 +149,7 @@ public class ModbusWorker extends ActorBlocking {
             while (iter.hasNext()) {
                 ModbusN2Hitrans trans = iter.next().getValue();
                 long elap = now - trans.lpts;//距离事务开始的时间
-                if (elap < 2000) { //事务还未超时
+                if (elap < 15000) { //事务还未超时
                     continue;
                 }
                 this.tmpModbus.add(trans);

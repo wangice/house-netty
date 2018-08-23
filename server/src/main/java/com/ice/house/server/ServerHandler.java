@@ -34,7 +34,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<ModbusMsg> {
             throws Exception {
         ModbusWorker worker = tsc.getWorker(ctx.channel().id().asLongText());
         worker.push(v -> {
-            ModbusN2H modbusN2H = (ModbusN2H) worker.ans.get(ctx.channel());
+            ModbusN2H modbusN2H = (ModbusN2H) worker.ans.get(ctx);
+            modbusN2H.lts = System.currentTimeMillis();
             modbusN2H.evnMsg(msg);//读取某个消息
         });
     }

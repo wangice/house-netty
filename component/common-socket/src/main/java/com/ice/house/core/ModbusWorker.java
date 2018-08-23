@@ -1,5 +1,6 @@
 package com.ice.house.core;
 
+import com.ice.house.modbus.ModbusN2H;
 import com.ice.house.modbus.ModbusN2Hitrans;
 import com.ice.house.task.actor.ActorBlocking;
 import com.ice.house.task.schedule.TscTimerMgr;
@@ -112,7 +113,19 @@ public class ModbusWorker extends ActorBlocking {
             return;
         }
         this.n2hHbLastCheck = now;
-
+        Iterator<Map.Entry<ChannelHandlerContext, ActorNet>> iterator = ans.entrySet().iterator();
+        while (iterator.hasNext()) {
+            ActorNet an = iterator.next().getValue();
+            if (an.lts == 0) {//刚连接，不关心
+                continue;
+            }
+            if (now - an.lts < 6000) {/*还未超过心跳超时*/
+                continue;
+            }
+            iterator.remove();
+            an.evnDis();//发送缓存池中的信息
+            an.ctx.close();//关闭
+        }
     }
 
     /**
@@ -128,9 +141,25 @@ public class ModbusWorker extends ActorBlocking {
         Iterator<Map.Entry<ChannelHandlerContext, ActorNet>> it = this.ans.entrySet().iterator();
         while (it.hasNext()) {
             ActorNet an = it.next().getValue();
-            if (an.lts == 0) {
-
+            if (an.lts == 0) {/*刚上来的连接*/
+                continue;
+            }
+            ModbusN2H n2h = (ModbusN2H) an;
+            Iterator<Map.Entry<Short, ModbusN2Hitrans>> iter = n2h.trans.entrySet().iterator();
+            while (iter.hasNext()) {
+                ModbusN2Hitrans trans = iter.next().getValue();
+                long elap = now - trans.lpts;//距离事务开始的时间
+                if (elap < 2000) { //事务还未超时
+                    continue;
+                }
+                this.tmpModbus.add(trans);
+                iter.remove();
             }
         }
+        for (ModbusN2Hitrans t : this.tmpModbus) {
+            t.tm = true;
+            t.n2h.timeout(t);
+        }
+        this.tmpModbus.clear();
     }
 }

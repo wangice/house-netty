@@ -125,6 +125,14 @@ public class ModbusN2H extends ModbusNet {
     }
 
     /**
+     * 超时处理
+     */
+    public void timeout(ModbusN2Hitrans t) {
+        Misc.exeConsumer(t.tmCb, t);
+        this.sendWaitTrans();
+    }
+
+    /**
      * 获得一个新的事务ID(MODBUS_TCP).
      */
     public short nextTid4ModBus() {

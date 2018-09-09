@@ -36,6 +36,9 @@ public class NettyConfig {
     @Value("${tcp.port}")
     private int tcpPort;
 
+    @Value("${http.port}")
+    private int httpPort;
+
     @Value("${so.keepalive}")
     private boolean keepAlive;
 
@@ -81,6 +84,11 @@ public class NettyConfig {
     @Bean(name = "tcpSocketAddress")
     public InetSocketAddress tcpPort() {
         return new InetSocketAddress(tcpPort);
+    }
+
+    @Bean(name = "httpSocketAddress")
+    public InetSocketAddress httpPort() {
+        return new InetSocketAddress(httpPort);
     }
 
     @Bean(name = "tcpChannelOptions")

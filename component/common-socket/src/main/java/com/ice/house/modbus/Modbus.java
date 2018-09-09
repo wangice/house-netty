@@ -2,6 +2,7 @@ package com.ice.house.modbus;
 
 import com.ice.house.Net;
 import com.ice.house.ODateu;
+import com.ice.house.modbusmsg.DeviceInfoReq;
 import com.ice.house.modbusmsg.HeartBeatReq;
 import com.ice.house.msg.ModbusHeader;
 
@@ -22,10 +23,13 @@ public class Modbus {
 
     public static final byte FC_HEARTBEAT = (byte) 0x01; /* 服务器向客户端发起的心跳. */
 
+    public static final byte FC_DEVICEINFO = (byte) 0x02;/* 服务器向客户端发起的设备信息查询. */
+
     public static List<Byte> serverFcode = new ArrayList<>();
 
     static {
         serverFcode.add(FC_HEARTBEAT);
+        serverFcode.add(FC_DEVICEINFO);
     }
 
     /**
@@ -78,7 +82,7 @@ public class Modbus {
     }
 
     /**
-     * FC_HEARTBEAT请求编码, 此报文总是由服务器向采集器发起.
+     * FC_HEARTBEAT请求编码, 此报文总是由服务器向设备发起.
      */
     public static final byte[] encodeHeartBeatReq(short tid, byte version, byte y, byte m, byte d, byte h, byte mi, byte s, short interval) {
         byte by[] = new byte[ModbusHeader.MODBUS_HEADER_LEN + 1 /* y. */ + 1 /* m. */ + 1 /* d. */ + 1 /* h. */ + 1 /* mi. */ + 1 /* s. */ + 2 /* interval. */];
@@ -92,5 +96,16 @@ public class Modbus {
         by[13] = s;
         System.arraycopy(Net.short2byte(interval), 0, by, 14, 2);
         return by;
+    }
+
+    /**
+     * FC_DEVICEINFO请求编码，此报文总是有服务器向设备发起
+     */
+    public static final DeviceInfoReq encodeDeviceInfoReq(short tid, byte version, long date) {
+        DeviceInfoReq req = new DeviceInfoReq();
+        req.header = Modbus
+            .modbusHeader(tid, version, DeviceInfoReq.DEVICE_INFO_REQ_LENGTH, Modbus.FC_DEVICEINFO);
+        req.date = date;
+        return req;
     }
 }

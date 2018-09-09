@@ -12,10 +12,8 @@ public abstract class Tusr<T1 extends ActorNet, T2> extends Actor {
 
     public String deviceNo;
 
-    public Tusr(String device, T1 n2h) {
+    public Tusr() {
         super(ActorType.ITC);
-        this.n2h = n2h;
-        this.deviceNo = device;
     }
 
     /**

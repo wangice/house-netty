@@ -2,9 +2,11 @@ package com.ice.house.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+
 import java.net.InetSocketAddress;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,43 +20,50 @@ import org.springframework.stereotype.Component;
 @Component
 public class NettyServer {
 
-  private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
-  @Autowired
-  @Qualifier("serverBootstrap")
-  private ServerBootstrap bootstrap;
+    @Autowired
+    @Qualifier("serverBootstrap")
+    private ServerBootstrap bootstrap;
 
-  @Autowired
-  @Qualifier("tcpSocketAddress")
-  private InetSocketAddress tcpPort;
+    @Autowired
+    @Qualifier("tcpSocketAddress")
+    private InetSocketAddress tcpPort;
 
-  private ChannelFuture serverChannelFuture;
+    @Autowired
+    @Qualifier("httpSocketAddress")
+    private InetSocketAddress httpPort;
 
-  @PostConstruct
-  public void start() throws Exception {
-    System.out.println("Starting server at " + tcpPort);
-    serverChannelFuture = bootstrap.bind(tcpPort).sync();
-  }
+    private ChannelFuture serverChannelFuture;
+    private ChannelFuture httpChannerlFuture;
 
-  @PreDestroy
-  public void stop() throws Exception {
-    serverChannelFuture.channel().closeFuture().sync();
-  }
+    @PostConstruct
+    public void start() throws Exception {
+        System.out.println("Starting server at " + tcpPort);
+        serverChannelFuture = bootstrap.bind(tcpPort).sync();
+        httpChannerlFuture = bootstrap.bind(httpPort).sync();
+    }
 
-  public ServerBootstrap getBootstrap() {
-    return bootstrap;
-  }
+    @PreDestroy
+    public void stop() throws Exception {
+        serverChannelFuture.channel().closeFuture().sync();
+        httpChannerlFuture.channel().closeFuture().sync();
+    }
 
-  public void setBootstrap(ServerBootstrap bootstrap) {
-    this.bootstrap = bootstrap;
-  }
+    public ServerBootstrap getBootstrap() {
+        return bootstrap;
+    }
 
-  public InetSocketAddress getTcpPort() {
-    return tcpPort;
-  }
+    public void setBootstrap(ServerBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
+    }
 
-  public void setTcpPort(InetSocketAddress tcpPort) {
-    this.tcpPort = tcpPort;
-  }
+    public InetSocketAddress getTcpPort() {
+        return tcpPort;
+    }
+
+    public void setTcpPort(InetSocketAddress tcpPort) {
+        this.tcpPort = tcpPort;
+    }
 
 }

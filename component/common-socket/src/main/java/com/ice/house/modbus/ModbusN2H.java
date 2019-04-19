@@ -76,7 +76,7 @@ public class ModbusN2H extends ModbusNet {
             ModbusN2Hitrans modbusN2Hitrans = this.trans.get(modbusMsg.header.tid);
             if (modbusN2Hitrans == null) {//找不到事务，可能已经超时被抛弃
                 logger.debug("can not found modbusN2Hitrans for tid:{}，may be it is timeout", modbusMsg.header.tid);
-                return true;
+                return false;
             }
             logger.debug("server accept client heart beat:{}", ctx.channel().id().asLongText());
             modbusN2Hitrans.lpts = System.currentTimeMillis();

@@ -1,25 +1,22 @@
 package com.ice.house.server;
 
-import com.ice.house.Misc;
-import com.ice.house.configuration.Config;
-import com.ice.house.device.DeviceConnect;
-import com.ice.house.device.DeviceConnectionFactory;
-import com.ice.house.modbusmsg.http.HttpSendMsg;
+import com.ice.house.enums.OuterProxyEnums;
+import com.ice.house.server.httpHandler.OuterProxyHttpServiceFactory;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.*;
-import io.netty.util.CharsetUtil;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import java.net.InetAddress;
 
 /**
  * @author:ice
@@ -30,42 +27,64 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 @Qualifier("httpHandler")
 public class HttpHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-  private static final Logger logger = LoggerFactory.getLogger(HttpHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpHandler.class);
 
-  @Override
-  protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
-    HttpMethod method = request.method();
-    ByteBuf content = request.content();
-    QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
-    logger.debug("http request method:{},url:{}", method.name(), queryStringDecoder.path());
-    if (method != HttpMethod.POST) {
-      logger.info("request method is not valid");
-      sendError(ctx, "request method is not valid");
-      return;
+    private volatile int readIdleTimes;
+
+    @Autowired
+    private OuterProxyHttpServiceFactory outerProxyHttpServiceFactory;
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
+        HttpMethod method = request.method();
+        ByteBuf content = request.content();
+        QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
+        logger.debug("http request method:{},url:{}", method.name(), queryStringDecoder.path());
+        byte[] req = new byte[content.readableBytes()];
+        content.readBytes(req);
+
+        outerProxyHttpServiceFactory.callProxyHttpService(OuterProxyEnums.getClassName(queryStringDecoder.path()), ctx, new String(req));
     }
-    byte[] req = new byte[content.readableBytes()];
-    content.readBytes(req);
-    if (queryStringDecoder.path() == Config.SENDMSG) {//向客户端发送消息
-      HttpSendMsg httpSendMsg = Misc.json2Obj(new String(req), HttpSendMsg.class);
-      if (httpSendMsg.clientId == null || httpSendMsg.msg == null) {
-        logger.info("it is a unvalid msg");
-        sendError(ctx, "it is a unvalid msg");
-        return;
-      }
-      DeviceConnect deviceConnect = DeviceConnectionFactory.getInstance()
-          .get(httpSendMsg.clientId);
-      //发送信息.
 
-      logger
-          .info("send msg client:{},msg:{}", httpSendMsg.clientId, Misc.obj2json(httpSendMsg.msg));
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        logger.info("连接：{}", ctx.channel().remoteAddress());
+        ctx.writeAndFlush("客户端" + InetAddress.getLocalHost().getHostName() + "成功与服务端建立连接！ ");
+        super.channelActive(ctx);
     }
-  }
 
-  private void sendError(ChannelHandlerContext ctx, String msg) {
-    FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
-        HttpResponseStatus.OK, Unpooled.copiedBuffer(msg, CharsetUtil.UTF_8));
-    response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
-    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        IdleStateEvent event = (IdleStateEvent) evt;
 
-  }
+        String eventType = null;
+        switch (event.state()) {
+            case READER_IDLE:
+                eventType = "读空闲";
+                readIdleTimes++; // 读空闲的计数加1
+                break;
+            case WRITER_IDLE:
+                eventType = "写空闲";
+                // 不处理
+                break;
+            case ALL_IDLE:
+                eventType = "读写空闲";
+                // 不处理
+                break;
+        }
+        logger.debug(ctx.channel().remoteAddress() + "超时事件：" + eventType);
+        if (readIdleTimes > 3) {
+            logger.info(" [server]读空闲超过3次，关闭连接");
+            ctx.channel().writeAndFlush("you are out");
+            ctx.channel().close();
+        }
+    }
+
+    /**
+     * 清理空闲次数
+     */
+    public boolean clearReadIdleTimes() {
+        readIdleTimes = 0;
+        return true;
+    }
 }

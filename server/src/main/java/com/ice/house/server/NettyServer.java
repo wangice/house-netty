@@ -1,17 +1,16 @@
 package com.ice.house.server;
 
+import com.ice.house.Misc;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-
-import java.net.InetSocketAddress;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PreDestroy;
+import java.net.InetSocketAddress;
 
 /**
  * @author:ice
@@ -37,11 +36,17 @@ public class NettyServer {
     private ChannelFuture serverChannelFuture;
     private ChannelFuture httpChannerlFuture;
 
-    @PostConstruct
-    public void start() throws Exception {
-        System.out.println("Starting server at " + tcpPort);
-        serverChannelFuture = bootstrap.bind(tcpPort).sync();
-        httpChannerlFuture = bootstrap.bind(httpPort).sync();
+    public boolean start() {
+
+        try {
+            System.out.println("Starting server at " + tcpPort);
+            serverChannelFuture = bootstrap.bind(tcpPort).sync();
+            httpChannerlFuture = bootstrap.bind(httpPort).sync();
+            return true;
+        } catch (InterruptedException e) {
+            logger.error("netty server start exception:{}", Misc.trace(e));
+            return false;
+        }
     }
 
     @PreDestroy

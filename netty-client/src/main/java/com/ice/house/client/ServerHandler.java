@@ -1,16 +1,14 @@
 package com.ice.house.client;
 
 import com.ice.house.Misc;
+import com.ice.house.config.Config;
+import com.ice.house.modbusmsg.DeviceInfoRsp;
 import com.ice.house.modbusmsg.HeartBeatReq;
 import com.ice.house.msg.Modbus;
-import com.ice.house.msg.ModbusHeader;
 import com.ice.house.msg.ModbusMsg;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-
-import java.net.InetAddress;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,7 +32,13 @@ public class ServerHandler extends SimpleChannelInboundHandler<ModbusMsg> {
         if (msg.header.fcode == Modbus.FC_HEARTBEAT) {
             logger.debug("server to client heart beat");
             HeartBeatReq heartBeatReq = Modbus.encodeHeartBeat(msg.header);
+            logger.debug("client to server heart beat:{}", Misc.obj2json(heartBeatReq));
             ctx.channel().writeAndFlush(heartBeatReq);
+        } else if (msg.header.fcode == Modbus.FC_DEVICEINFO) {
+            logger.debug("server to client query device info");
+            DeviceInfoRsp deviceInfoReq = Modbus.encodeDeviceInfo(Config.deviceNo, Config.version, msg.header);
+            ctx.channel().writeAndFlush(deviceInfoReq);
+
         }
     }
 

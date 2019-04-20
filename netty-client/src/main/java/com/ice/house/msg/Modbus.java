@@ -1,13 +1,9 @@
 package com.ice.house.msg;
 
 import com.ice.house.Net;
-import com.ice.house.ODateu;
 import com.ice.house.config.Config;
+import com.ice.house.modbusmsg.DeviceInfoRsp;
 import com.ice.house.modbusmsg.HeartBeatReq;
-import com.ice.house.modbusmsg.HeartBeatRsp;
-
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * @author:ice
@@ -16,6 +12,8 @@ import java.util.TimeZone;
 public class Modbus {
 
     public static final byte FC_HEARTBEAT = (byte) 0x01;/*心跳.*/
+
+    public static final byte FC_DEVICEINFO = (byte) 0x02;/*设备信息*/
 
     /**
      * 编码一个MODBUS-TCP公共头部.
@@ -42,6 +40,15 @@ public class Modbus {
         header.len = Config.deviceNo.length();
         heartBeatReq.deviceNo = Config.deviceNo;
         return heartBeatReq;
+    }
+
+    public static final DeviceInfoRsp encodeDeviceInfo(String deviceInfo, String version, ModbusHeader header) {
+        DeviceInfoRsp deviceInfoReq = new DeviceInfoRsp();
+        deviceInfoReq.header = header;
+        deviceInfoReq.deviceInfo = deviceInfo;
+        deviceInfoReq.version = version;
+        header.len = DeviceInfoRsp.DEVICE_INFO_REQ_LENGTH;
+        return deviceInfoReq;
     }
 
 }

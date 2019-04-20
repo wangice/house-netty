@@ -36,7 +36,7 @@ public abstract class ActorNet extends Actor {
     }
 
     public void send(ModbusMsg modbusMsg) {
-        logger.debug("消息发送:{}", Misc.obj2json(modbusMsg));
+        logger.debug("消息发送:{},ctx: {}", Misc.obj2json(modbusMsg), ctx.channel().id().asLongText());
         ctx.channel().writeAndFlush(modbusMsg);
     }
 

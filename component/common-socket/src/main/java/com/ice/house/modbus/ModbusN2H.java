@@ -1,7 +1,6 @@
 package com.ice.house.modbus;
 
 import com.ice.house.Misc;
-import com.ice.house.Net;
 import com.ice.house.core.ModbusWorker;
 import com.ice.house.core.Tusr;
 import com.ice.house.msg.ModbusMsg;
@@ -79,6 +78,7 @@ public class ModbusN2H extends ModbusNet {
                 return false;
             }
             logger.debug("server accept client heart beat:{}", ctx.channel().id().asLongText());
+            modbusN2Hitrans.modbusMsg = modbusMsg;
             modbusN2Hitrans.lpts = System.currentTimeMillis();
             Misc.exeConsumer(modbusN2Hitrans.rspCb, modbusN2Hitrans);
             this.trans.remove(modbusMsg.header.tid);//从缓存中移除事务

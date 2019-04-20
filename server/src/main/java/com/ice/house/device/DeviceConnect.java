@@ -7,6 +7,7 @@ import com.ice.house.modbus.ModbusN2H;
 import com.ice.house.modbusmsg.DeviceInfoReq;
 import com.ice.house.modbusmsg.DeviceInfoRsp;
 import com.ice.house.modbusmsg.HeartBeatReq;
+import com.ice.house.modbusmsg.HeartBeatRsp;
 import com.ice.house.msg.ModbusMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +24,6 @@ public class DeviceConnect extends Tusr<ModbusN2H, ModbusMsg> {
 
     private static final Logger logger = LoggerFactory.getLogger(DeviceConnect.class);
 
-    private String deviceNo;//设备号
-
-    public void setDeviceNo(String deviceNo) {
-        this.deviceNo = deviceNo;
-    }
-
     public void setNodBusN2H(ModbusN2H modbusN2H) {
         this.n2h = modbusN2H;
     }
@@ -42,6 +37,9 @@ public class DeviceConnect extends Tusr<ModbusN2H, ModbusMsg> {
                 .encodeHeartBeatReq((short) 0x0000 /* 在future中被替换. */, Modbus.version,
                         (short) Modbus.cs_cfg_collector_def_heartbeat);
         this.n2h.future(heartBeatReq, rspCb -> {
+            HeartBeatRsp rsp = (HeartBeatRsp) rspCb.modbusMsg;
+            this.deviceNo = rsp.deviceNo;
+            logger.debug("client to server heart:{}", Misc.obj2json(rsp));
             //获取设备的详细信息
             this.sendDeviceInfo();
         }, tmb -> {
@@ -62,6 +60,9 @@ public class DeviceConnect extends Tusr<ModbusN2H, ModbusMsg> {
             this.n2h.worker.tscTimerMgr.addTimerOneTime(5, v -> sendHeartbeat());
         }, tmb -> {
             logger.warn("query device info timeout");
+            if (!this.n2h.est) {
+                return;
+            }
             this.n2h.worker.tscTimerMgr.addTimerOneTime(5, v -> sendHeartbeat());//继续发送心跳
         });
     }
@@ -79,11 +80,16 @@ public class DeviceConnect extends Tusr<ModbusN2H, ModbusMsg> {
         HeartBeatReq heartBeatReq = Modbus
                 .encodeHeartBeatReq((short) 0x0000 /* 在future中被替换. */, Modbus.version,
                         (short) Modbus.cs_cfg_collector_def_heartbeat);
+        if (this.n2h == null) {
+            return;
+        }
         this.n2h.future(heartBeatReq, rspCb -> {
-            this.n2h.worker.tscTimerMgr.addTimerOneTime(5, v -> sendHeartbeat());//添加一个定时器任务再过五秒后发送心跳
+            if (this.n2h.est) {
+                this.n2h.worker.tscTimerMgr.addTimerOneTime(5, v -> sendHeartbeat());//添加一个定时器任务再过五秒后发送心跳
+            }
         }, tmb -> {
             logger.debug("first heartbeat timeout, we will close it!");
-            this.close();
+//            this.close();
         });
     }
 }

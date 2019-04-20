@@ -12,6 +12,7 @@
     <module>component</module>
     <module>server</module>
     <module>netty-client</module>
+    <module>house-netty-server</module>
   </modules>
 
   <properties>

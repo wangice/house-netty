@@ -55,15 +55,15 @@ public class DeviceConnect extends Tusr<ModbusN2H, ModbusMsg> {
         this.n2h.future(req, rspCb -> {
             DeviceInfoRsp rsp = (DeviceInfoRsp) rspCb.modbusMsg;
             logger.debug("query device info success! msg:{}", Misc.obj2json(rsp));
-            this.deviceNo = rsp.deviceId;
+            this.deviceNo = rsp.deviceInfo;
             DeviceConnectionFactory.getInstance().put(deviceNo, this);
-            this.n2h.worker.tscTimerMgr.addTimerOneTime(5, v -> sendHeartbeat());
+            this.n2h.worker.tscTimerMgr.addTimerOneTime(60, v -> sendHeartbeat());
         }, tmb -> {
             logger.warn("query device info timeout");
             if (!this.n2h.est) {
                 return;
             }
-            this.n2h.worker.tscTimerMgr.addTimerOneTime(5, v -> sendHeartbeat());//继续发送心跳
+            this.n2h.worker.tscTimerMgr.addTimerOneTime(60, v -> sendHeartbeat());//继续发送心跳
         });
     }
 
@@ -85,7 +85,7 @@ public class DeviceConnect extends Tusr<ModbusN2H, ModbusMsg> {
         }
         this.n2h.future(heartBeatReq, rspCb -> {
             if (this.n2h.est) {
-                this.n2h.worker.tscTimerMgr.addTimerOneTime(5, v -> sendHeartbeat());//添加一个定时器任务再过五秒后发送心跳
+                this.n2h.worker.tscTimerMgr.addTimerOneTime(60, v -> sendHeartbeat());//添加一个定时器任务再过60秒后发送心跳
             }
         }, tmb -> {
             logger.debug("first heartbeat timeout, we will close it!");

@@ -36,9 +36,9 @@ public class ServerHandler extends SimpleChannelInboundHandler<ModbusMsg> {
             ctx.channel().writeAndFlush(heartBeatReq);
         } else if (msg.header.fcode == Modbus.FC_DEVICEINFO) {
             logger.debug("server to client query device info");
-            DeviceInfoRsp deviceInfoReq = Modbus.encodeDeviceInfo(Config.deviceNo, Config.version, msg.header);
-            ctx.channel().writeAndFlush(deviceInfoReq);
-
+            DeviceInfoRsp deviceInfoRsp = Modbus.encodeDeviceInfo(Config.deviceNo, Config.version, msg.header);
+            ctx.channel().writeAndFlush(deviceInfoRsp);
+            logger.debug("client to server device info:{}", Misc.obj2json(deviceInfoRsp));
         }
     }
 

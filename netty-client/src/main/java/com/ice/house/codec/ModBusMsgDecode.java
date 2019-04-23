@@ -31,7 +31,7 @@ public class ModBusMsgDecode extends LengthFieldBasedFrameDecoder {
         }
 
         if (in.readableBytes() < ModbusHeader.MODBUS_HEADER_LEN) {
-            logger.warn("dfd");
+            logger.warn("传入的长度不符合");
             return null;
         }
         in.markReaderIndex();
@@ -59,7 +59,6 @@ public class ModBusMsgDecode extends LengthFieldBasedFrameDecoder {
             case Modbus.FC_HEARTBEAT://心跳
                 return new HeartBeatRsp(header, bytes);
             case Modbus.FC_DEVICEINFO:
-                System.out.println("解析");
                 return new DeviceInfoReq(header, bytes);
             default:
                 return null;

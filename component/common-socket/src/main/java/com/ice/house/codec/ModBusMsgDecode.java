@@ -1,6 +1,7 @@
 package com.ice.house.codec;
 
 import com.ice.house.modbus.Modbus;
+import com.ice.house.modbusmsg.DeviceInfoRsp;
 import com.ice.house.modbusmsg.HeartBeatRsp;
 import com.ice.house.msg.ModbusHeader;
 import com.ice.house.msg.ModbusMsg;
@@ -54,6 +55,8 @@ public class ModBusMsgDecode extends LengthFieldBasedFrameDecoder {
         switch (fcode) {
             case Modbus.FC_HEARTBEAT://心跳
                 return new HeartBeatRsp(header, bytes);
+            case Modbus.FC_DEVICEINFO://设备信息
+                return new DeviceInfoRsp(header, bytes);
             default:
                 return null;
         }

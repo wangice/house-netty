@@ -5,20 +5,22 @@ package com.ice.house.enums;
  * @Date 2019/4/19 16:00
  */
 public enum OuterProxyEnums {
-    ASK_DEVICE_PROXY("/ask/device", "AskDeviceOuterProxyHttpServiceImpl");
+    ASK_DEVICE_PROXY("GET", "/ask/device", "AskDeviceOuterProxyHttpServiceImpl");
 
-    OuterProxyEnums(String path, String className) {
+    OuterProxyEnums(String methon, String path, String className) {
+        this.methon = methon;
         this.path = path;
         this.className = className;
     }
 
+    private String methon;
     private String path;
     private String className;
 
 
-    public static String getClassName(String path) {
+    public static String getClassName(String methon, String path) {
         for (OuterProxyEnums outerProxyEnums : OuterProxyEnums.values()) {
-            if (outerProxyEnums.getPath().equals(path)) {
+            if (outerProxyEnums.getMethon().equals("GET") && outerProxyEnums.getPath().equals(path)) {
                 return outerProxyEnums.getClassName();
             }
         }
@@ -31,5 +33,9 @@ public enum OuterProxyEnums {
 
     public String getClassName() {
         return className;
+    }
+
+    public String getMethon() {
+        return methon;
     }
 }

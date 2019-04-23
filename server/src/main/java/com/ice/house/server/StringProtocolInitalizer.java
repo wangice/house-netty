@@ -59,9 +59,8 @@ public class StringProtocolInitalizer extends ChannelInitializer<SocketChannel> 
             pipeline.addLast("http-encoder", new HttpResponseEncoder());
             pipeline.addLast("http-chunked",
                     new ChunkedWriteHandler());//ChunkedWriteHandler的主要作用是支持异步发送大的码流,但不占用过多的内存,防止JAVA内存溢出
-            pipeline.addLast(new IdleStateHandler(2, 2, 2, TimeUnit.SECONDS));//添加心跳检测，检测的方式读空闲2秒或者是写空闲2秒，或者都空闲2秒时发送心跳
+            pipeline.addLast(new IdleStateHandler(20, 20, 20, TimeUnit.SECONDS));//添加心跳检测，检测的方式读空闲2秒或者是写空闲2秒，或者都空闲2秒时发送心跳
             pipeline.addLast("httpServerHandler", httpHandler);
-
         }
     }
 }

@@ -122,6 +122,8 @@ public class ModbusN2H extends ModbusNet {
                 this.enableDirectSend = false;
                 this.trans.put(tid, t);
                 this.send(req);
+            } else {
+                this.waitSendTrans.push(t);
             }
         });
         return tid;
